@@ -83,7 +83,6 @@ public:
 		{
 			return &LocalPlayerSubsystems;
 		}
-		return nullptr;
 	}
 
 protected:
