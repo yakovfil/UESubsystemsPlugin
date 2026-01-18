@@ -25,19 +25,16 @@ void BlueprintableSubsystemInitialize(UGameInstance* GameInstance, FSubsystemCol
 		if (DataAsset != nullptr)
 		{
 			const bool IsServer = IsValid(GameInstance) ? GameInstance->IsDedicatedServerInstance() : false;
-			auto* SubsystemDescriptions = DataAsset->GetDescriptions<T>();
-			if (SubsystemDescriptions != nullptr)
+			auto& SubsystemDescriptions = DataAsset->GetDescriptions<T>();
+			for (auto& SubsystemDescription : SubsystemDescriptions)
 			{
-				for (auto& SubsystemDescription : *SubsystemDescriptions)
+				if (IsServer && SubsystemDescription.SubsystemsMode == EUESubsystemsMode::ESM_ClientOnly)
 				{
-					if (IsServer && SubsystemDescription.SubsystemsMode == EUESubsystemsMode::ESM_ClientOnly)
-					{
-						continue;
-					}
-					if (SubsystemDescription.SubsystemsClass != nullptr)
-					{
-						Collection.InitializeDependency(SubsystemDescription.SubsystemsClass);
-					}
+					continue;
+				}
+				if (SubsystemDescription.SubsystemsClass != nullptr)
+				{
+					Collection.InitializeDependency(SubsystemDescription.SubsystemsClass);
 				}
 			}
 		}

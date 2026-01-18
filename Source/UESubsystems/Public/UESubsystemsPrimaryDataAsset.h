@@ -52,6 +52,12 @@ struct FBlueprintableLocalPlayerSubsystemDescription
 	EUESubsystemsMode SubsystemsMode = EUESubsystemsMode::ESM_ClientServer;
 };
 
+template<typename T>
+concept SubsystemDescription =
+(std::same_as<T, FBlueprintableGameInstanceSubsystemDescription> ||
+	std::same_as<T, FBlueprintableWorldSubsystemDescription> ||
+	std::same_as<T, FBlueprintableLocalPlayerSubsystemDescription>);
+
 UCLASS(BlueprintType)
 class UESUBSYSTEMS_API UUESubsystemsPrimaryDataAsset :public UPrimaryDataAsset
 {
@@ -69,19 +75,20 @@ public:
 	TArray<FBlueprintableLocalPlayerSubsystemDescription> LocalPlayerSubsystems;
 
 	template <typename DescriptionStruct>
-	constexpr const TArray<DescriptionStruct>* GetDescriptions() const
+	constexpr const TArray<DescriptionStruct>& GetDescriptions() const
 	{
+		static_assert(SubsystemDescription<DescriptionStruct>, "DescriptionStruct no supported");
 		if constexpr (std::is_same_v<DescriptionStruct, FBlueprintableGameInstanceSubsystemDescription>)
 		{
-			return &GameInstanceSubsystems;
+			return GameInstanceSubsystems;
 		}
 		if constexpr (std::is_same_v<DescriptionStruct, FBlueprintableWorldSubsystemDescription>)
 		{
-			return &WorldSubsystems;
+			return WorldSubsystems;
 		}
 		if constexpr (std::is_same_v<DescriptionStruct, FBlueprintableLocalPlayerSubsystemDescription>)
 		{
-			return &LocalPlayerSubsystems;
+			return LocalPlayerSubsystems;
 		}
 	}
 
